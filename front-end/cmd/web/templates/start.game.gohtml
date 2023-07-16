@@ -1,0 +1,20 @@
+{{template "base" .}}
+
+{{define "content" }}
+    <div class="container">
+        <div class="row">
+            <span>New Game</span>
+            <form action="/newGame/" method="post">
+                Number of Participants:<input type="text" name="participants">
+                <input type="submit" value="submit">
+            </form>
+        </div>
+    </div>
+{{end}}
+
+{{define "js"}}
+    <script>
+
+
+    </script>
+{{end}}
