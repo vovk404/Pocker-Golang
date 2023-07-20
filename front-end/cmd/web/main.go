@@ -8,15 +8,22 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		render(w, "start.game.gohtml")
-	})
+	handleRoutes()
 
 	fmt.Println("Starting front end service on port 80")
 	err := http.ListenAndServe(":80", nil)
 	if err != nil {
 		log.Panic(err)
 	}
+}
+
+func handleRoutes() {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		render(w, "start.game.gohtml")
+	})
+	http.HandleFunc("/new_game", func(w http.ResponseWriter, r *http.Request) {
+		render(w, "game/new_game.gohtml")
+	})
 }
 
 func render(w http.ResponseWriter, t string) {
