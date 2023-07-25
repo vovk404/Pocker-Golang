@@ -19,14 +19,20 @@ func main() {
 
 func handleRoutes() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		render(w, "start.game.gohtml")
+		render(w, "start.game.gohtml", map[string]interface{}{})
 	})
 	http.HandleFunc("/new_game", func(w http.ResponseWriter, r *http.Request) {
-		render(w, "game/new_game.gohtml")
+		participants := r.PostFormValue("participants")
+		if participants == "" {
+			//log.Panic("Participants wasn`t passed")
+			http.Redirect(w, r, "http://localhost/", http.StatusSeeOther)
+		}
+		data := map[string]interface{}{"participants": r.PostFormValue("participants")}
+		render(w, "game/new_game.gohtml", data)
 	})
 }
 
-func render(w http.ResponseWriter, t string) {
+func render(w http.ResponseWriter, t string, data map[string]interface{}) {
 
 	partials := []string{
 		fmt.Sprintf("./cmd/web/templates/%s", t),
@@ -41,7 +47,7 @@ func render(w http.ResponseWriter, t string) {
 		return
 	}
 
-	if err := tmpl.Execute(w, nil); err != nil {
+	if err := tmpl.Execute(w, data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
