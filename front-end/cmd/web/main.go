@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func main() {
@@ -22,12 +23,16 @@ func handleRoutes() {
 		render(w, "start.game.gohtml", map[string]interface{}{})
 	})
 	http.HandleFunc("/new_game", func(w http.ResponseWriter, r *http.Request) {
-		participants := r.PostFormValue("participants")
-		if participants == "" {
+		participants, err := strconv.ParseInt(r.PostFormValue("participants"), 10, 64)
+		if err != nil {
 			//log.Panic("Participants wasn`t passed")
 			http.Redirect(w, r, "http://localhost/", http.StatusSeeOther)
 		}
-		data := map[string]interface{}{"participants": r.PostFormValue("participants")}
+		var participantsArray []int
+		for i := 1; i <= int(participants); i++ {
+			participantsArray = append(participantsArray, i)
+		}
+		data := map[string]interface{}{"participants": participantsArray}
 		render(w, "game/new_game.gohtml", data)
 	})
 }
