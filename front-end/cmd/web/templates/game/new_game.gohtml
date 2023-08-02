@@ -14,8 +14,15 @@
             {{range .participants}}
                <div class="player-{{.}}">
                   <p>Player number {{.}}</p>
+                  <div class="cards">
+                  </div>
                </div>
             {{end}}
+        </div>
+        <div class="buttons">
+            <button class="start-game">Start Game</button>
+            <button class="pass-cards-to-players">Pass Cards to Players</button>
+            <button class="open-pre-flop">Open preflop</button>
         </div>
     </div>
 {{end}}
