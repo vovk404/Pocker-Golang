@@ -22,9 +22,7 @@ func main() {
 	// }
 
 	//set up config
-	app := AppConfig{
-		
-	}
+	app := AppConfig{}
 
 	srv := &http.Server{
 		Addr: fmt.Sprintf(":%s", webPort),

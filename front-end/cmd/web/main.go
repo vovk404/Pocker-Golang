@@ -34,8 +34,6 @@ func handleRoutes() {
 		}
 		data := map[string]interface{}{"participants": participantsArray}
 		render(w, "game/new_game.gohtml", data)
-
-		//call start-game
 	})
 }
 

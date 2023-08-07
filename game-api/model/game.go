@@ -6,6 +6,7 @@ import (
 
 type Game struct {
 	Cards Cards
+	CurrentDeck []string
 }
 
 func CreateGame(palyers int) Game {
@@ -15,6 +16,7 @@ func CreateGame(palyers int) Game {
 		Cards: Cards{},
 	}
 	deck := game.Cards.getNewDeck()
+	game.CurrentDeck = deck
 	log.Println("Shuffled deck: ", deck)
 
 	//give 2 cards to each players
