@@ -22,7 +22,7 @@ func (app *AppConfig) routes() http.Handler {
 
 	mux.Use(middleware.Heartbeat("/ping"))
 
-	mux.Post("/new-game", app.NewGame)
+	mux.Post("/start-game", app.NewGame)
 
 	return mux
 }

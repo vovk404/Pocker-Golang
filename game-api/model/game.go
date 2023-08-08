@@ -6,22 +6,17 @@ import (
 
 type Game struct {
 	Cards Cards
-	CurrentDeck []string
 }
 
 func CreateGame(palyers int) Game {
 	
-	//create a new deck of cards
 	game := Game {
 		Cards: Cards{},
 	}
-	deck := game.Cards.getNewDeck()
-	game.CurrentDeck = deck
-	log.Println("Shuffled deck: ", deck)
+	game.Cards.createNewDeck()
+	game.Cards.passCardsToPlayers(palyers)
+	game.Cards.openPreflop()
 
-	//give 2 cards to each players
-
-	//open preflop
-
+	log.Println("cards set up finished")
 	return game
 }

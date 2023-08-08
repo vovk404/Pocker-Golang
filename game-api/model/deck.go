@@ -1,13 +1,18 @@
 package model
 
 import (
-	"strconv"
+	"fmt"
 	"math/rand"
+	"strconv"
 )
 
-type Cards struct {}
+type Cards struct {
+	CurrentDeck []string
+	PlayersCards map[string][]string
+	Preflop []string
+}
 
-func (cards *Cards) getNewDeck() []string {
+func (cards *Cards) createNewDeck() {
 	deck := []string{}
 	for i := 2; i <= 10; i++ {
 		element := strconv.FormatInt(int64(i), 10)
@@ -27,7 +32,8 @@ func (cards *Cards) getNewDeck() []string {
 		deck = append(deck, clubs, diamonds, hearts, spades);
 	}
 
-	return cards.shuffleDeck(deck)
+	deck = cards.shuffleDeck(deck)
+	cards.CurrentDeck = deck
 }
 
 func (cards *Cards) shuffleDeck(deck []string) []string {
@@ -36,4 +42,27 @@ func (cards *Cards) shuffleDeck(deck []string) []string {
     })
 
 	return deck
+}
+
+func (cards *Cards) passCardsToPlayers(players int) {
+	playersCards := map[string][]string{}
+	for i := 0; i <= players; i++ {
+		playersCards["player_" + fmt.Sprint(i)] = []string{
+			cards.getOneCardFromDeck(),
+			cards.getOneCardFromDeck(),
+		}
+	}
+	cards.PlayersCards = playersCards
+}
+
+func (cards *Cards) openPreflop() {
+	cards.Preflop = cards.CurrentDeck[:5]
+	cards.CurrentDeck = cards.CurrentDeck[5:]
+}
+
+func (cards *Cards) getOneCardFromDeck() string {
+	card := cards.CurrentDeck[0]
+	cards.CurrentDeck = cards.CurrentDeck[1:]
+
+	return card
 }

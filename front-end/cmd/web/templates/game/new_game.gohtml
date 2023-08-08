@@ -6,12 +6,12 @@
             <div class="general-info">
                 <div class="row">
                     <span>Pocker</span>
-                    <span class="participants-num">{{.participants}}</span>
+                    <span class="players-num">{{.players}}</span>
                 </div>
             </div>
         </div>
         <div class="players-table">
-            {{range .participants}}
+            {{range .players}}
                <div class="player-{{.}}">
                   <p>Player number {{.}}</p>
                   <div class="cards">
@@ -41,32 +41,33 @@
 
         startGameBtn.addEventListener("click", function() {
             const payload = {
-                playersNumber: {{.participants}}
+                players: {{.players}}
             }
-        });
+            payload.players = payload.players.length;
+            const headers = new Headers();
+            headers.append("Content-Type", "application/json");
+            
+            const body = {
+                method: "POST",
+                body: JSON.stringify(payload),
+                headers: headers,
+             };
+              fetch("http:\/\/localhost:8080/start-game", body)
+              .then((response) => response.json())
+              .then((data) => {
+                payloadPlace.innerHTML = JSON.stringify(payload, undefined, 4);
+                received.innerHTML = JSON.stringify(data, undefined, 4);
+                if (data.error) {
+                     outputPlace.innerHTML += `<br><string>Error:</strong> ${data.message}`;
+                     } else {
+                         outputPlace.innerHTML += `<br><strong>Response from game-api service</strong>: ${data.data}`;
+                        } 
+                     })
+                     .catch((error) => {
+                        outputPlace.innerHTML += "<br><br>Eror: " + error;
+                     });
+         });
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
         
-        const body = {
-            method: "POST",
-            body: JSON.stringify(payload),
-            headers: headers,
-        };
-
-        fetch("http:\/\/localhost:8080/new-game", body)
-        .then((response) => response.json())
-        .then((data) => {
-            payloadPlace.innerHTML = JSON.stringify(payload, undefined, 4);
-            received.innerHTML = JSON.stringify(data, undefined, 4);
-            if (data.error) {
-                outputPlace.innerHTML += `<br><string>Error:</strong> ${data.message}`;
-            } else {
-                outputPlace.innerHTML += `<br><strong>Response from game-api service</strong>: ${data.data}`;
-            }
-        })
-        .catch((error) => {
-            outputPlace.innerHTML += "<br><br>Eror: " + error;
-        });
     </script>
 {{end}}

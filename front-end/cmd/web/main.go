@@ -23,16 +23,16 @@ func handleRoutes() {
 		render(w, "start.game.gohtml", map[string]interface{}{})
 	})
 	http.HandleFunc("/new_game", func(w http.ResponseWriter, r *http.Request) {
-		participants, err := strconv.ParseInt(r.PostFormValue("participants"), 10, 64)
+		players, err := strconv.ParseInt(r.PostFormValue("players"), 10, 64)
 		if err != nil {
-			//log.Panic("Participants wasn`t passed")
+			//log.Panic("Players wasn`t passed")
 			http.Redirect(w, r, "http://localhost/", http.StatusSeeOther)
 		}
-		var participantsArray []int
-		for i := 1; i <= int(participants); i++ {
-			participantsArray = append(participantsArray, i)
+		var playersArray []int
+		for i := 1; i <= int(players); i++ {
+			playersArray = append(playersArray, i)
 		}
-		data := map[string]interface{}{"participants": participantsArray}
+		data := map[string]interface{}{"players": playersArray}
 		render(w, "game/new_game.gohtml", data)
 	})
 }
