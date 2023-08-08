@@ -1,3 +1,15 @@
 version: '3'
 
+services:
+
+  game-api:
+    build:
+      context: ./../game-api
+      dockerfile: ./../game-api/game-api.dockerfile
+    restart: always
+    ports:
+      - "8080:80"
+    deploy:
+      mode: replicated
+      replicas: 1
   

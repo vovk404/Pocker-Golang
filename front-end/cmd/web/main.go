@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func main() {
@@ -19,14 +20,24 @@ func main() {
 
 func handleRoutes() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		render(w, "start.game.gohtml")
+		render(w, "start.game.gohtml", map[string]interface{}{})
 	})
 	http.HandleFunc("/new_game", func(w http.ResponseWriter, r *http.Request) {
-		render(w, "game/new_game.gohtml")
+		players, err := strconv.ParseInt(r.PostFormValue("players"), 10, 64)
+		if err != nil {
+			//log.Panic("Players wasn`t passed")
+			http.Redirect(w, r, "http://localhost/", http.StatusSeeOther)
+		}
+		var playersArray []int
+		for i := 1; i <= int(players); i++ {
+			playersArray = append(playersArray, i)
+		}
+		data := map[string]interface{}{"players": playersArray}
+		render(w, "game/new_game.gohtml", data)
 	})
 }
 
-func render(w http.ResponseWriter, t string) {
+func render(w http.ResponseWriter, t string, data map[string]interface{}) {
 
 	partials := []string{
 		fmt.Sprintf("./cmd/web/templates/%s", t),
@@ -41,7 +52,7 @@ func render(w http.ResponseWriter, t string) {
 		return
 	}
 
-	if err := tmpl.Execute(w, nil); err != nil {
+	if err := tmpl.Execute(w, data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
