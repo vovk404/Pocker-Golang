@@ -1,3 +1,4 @@
 *.DS_Store
 front-end/frontApp
 pocker.code-workspace
+project/db-data
