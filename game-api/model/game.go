@@ -26,8 +26,8 @@ func CreateGame(palyers int) Game {
 
 func crateRedisSession() {
 	client := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-		Password: "",
+		Addr: "redis:6379",
+		Password: "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81",
 		DB: 0,
 	})
 	pong, err := client.Ping().Result()
