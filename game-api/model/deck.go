@@ -46,7 +46,7 @@ func (cards *Cards) shuffleDeck(deck []string) []string {
 
 func (cards *Cards) passCardsToPlayers(players int) {
 	playersCards := map[string][]string{}
-	for i := 0; i <= players; i++ {
+	for i := 1; i <= players; i++ {
 		playersCards["player_" + fmt.Sprint(i)] = []string{
 			cards.getOneCardFromDeck(),
 			cards.getOneCardFromDeck(),
@@ -56,8 +56,8 @@ func (cards *Cards) passCardsToPlayers(players int) {
 }
 
 func (cards *Cards) openPreflop() {
-	cards.Preflop = cards.CurrentDeck[:5]
-	cards.CurrentDeck = cards.CurrentDeck[5:]
+	cards.Preflop = cards.CurrentDeck[:3]
+	cards.CurrentDeck = cards.CurrentDeck[3:]
 }
 
 func (cards *Cards) getOneCardFromDeck() string {

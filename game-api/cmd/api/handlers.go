@@ -5,12 +5,17 @@ import (
 	"game-api/model"
 	"log"
 	"net/http"
+	"encoding/json"
 )
 
 type jsonResponse struct {
 	Error   bool   `json:"error"`
 	Message string `json:"message"`
 	Data    CardsResponse
+}
+
+type newGameJsonRequest struct {
+	Players int `json:"players"`
 }
 
 type CardsResponse struct {
@@ -21,19 +26,23 @@ type CardsResponse struct {
 
 func (app *AppConfig) NewGame(w http.ResponseWriter, r *http.Request) {
 
+	decoder := json.NewDecoder(r.Body)
+    var playersRequest newGameJsonRequest
+    error := decoder.Decode(&playersRequest)
+    if error != nil {
+        fmt.Println("Error occured while decoding the data: ", error)
+        return
+    }
+
+	game := model.CreateGame(playersRequest.Players)
 	payload := jsonResponse {
 		Error:   false,
 		Message: fmt.Sprintf("Success game start"),
 		Data:    CardsResponse{},
 	}
-	log.Println(r.PostForm)
-	log.Println(fmt.Sprintf("Number of players recieved: %s", r.PostFormValue("players")))
-	
-
-	game := model.CreateGame(int(4))
 	payload.Data.CurrentDeck  = game.Cards.CurrentDeck
 	payload.Data.PlayersCards = game.Cards.PlayersCards
 	payload.Data.Preflop      = game.Cards.Preflop
 	log.Println("game created")
-	app.writeJson(w, http.StatusAccepted, payload)
+	app.writeJson(w, http.StatusOK, payload)
 }
