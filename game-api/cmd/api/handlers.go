@@ -21,7 +21,7 @@ type newGameJsonRequest struct {
 type CardsResponse struct {
 	CurrentDeck  []string
 	PlayersCards map[string][]string
-	Preflop      []string
+	Flop      []string
 }
 
 func (app *AppConfig) NewGame(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +42,7 @@ func (app *AppConfig) NewGame(w http.ResponseWriter, r *http.Request) {
 	}
 	payload.Data.CurrentDeck  = game.Cards.CurrentDeck
 	payload.Data.PlayersCards = game.Cards.PlayersCards
-	payload.Data.Preflop      = game.Cards.Preflop
+	payload.Data.Flop         = game.Cards.Preflop
 	log.Println("game created")
 	app.writeJson(w, http.StatusOK, payload)
 }

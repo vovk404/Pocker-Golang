@@ -2,7 +2,7 @@ package model
 
 import (
 	"log"
-	"fmt"
+	"encoding/json"
 	"github.com/go-redis/redis"
 )
 
@@ -18,18 +18,28 @@ func CreateGame(palyers int) Game {
 	game.Cards.createNewDeck()
 	game.Cards.passCardsToPlayers(palyers)
 	game.Cards.openPreflop()
-	crateRedisSession()
+	game.crateRedisSession()
 
 	log.Println("cards set up finished")
 	return game
 }
 
-func crateRedisSession() {
+func (game *Game) crateRedisSession() {
 	client := redis.NewClient(&redis.Options{
 		Addr: "redis:6379",
 		Password: "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81",
 		DB: 0,
 	})
 	pong, err := client.Ping().Result()
-	fmt.Println(pong, err)
+	log.Println(pong, err)
+
+	json, err := json.Marshal(game)
+    if err != nil {
+        log.Println("Error during marshaling game object", err)
+    }
+
+	err = client.Set("CurrentGame", json, 0).Err()
+	if err != nil {
+		log.Println("Error during saving the game to the redis cache: ", err)
+	}
 }
