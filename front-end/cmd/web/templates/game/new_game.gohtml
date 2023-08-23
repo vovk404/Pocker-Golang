@@ -5,7 +5,7 @@
 
         <div class="players-table">
             {{range .players}}
-               <div class="player-{{.}}">
+               <div class="player_{{.}}">
                   <p>Player number {{.}}</p>
                   <div class="cards">
                   </div>
@@ -30,6 +30,8 @@
     <script>
         let startGameBtn = document.getElementById("startGame"),
             payloadPlace = document.getElementById("payload"),
+            playersCards = null,
+            players      = document.getElementsByClassName("players-table"),
             outputPlace  = document.getElementById("output");
 
         startGameBtn.addEventListener("click", function() {
@@ -52,9 +54,17 @@
                 payloadPlace.innerHTML = JSON.stringify(payload, undefined, 4);
 
                 if (data.error) {
-                     outputPlace.innerHTML += `<br><string>Error Response:</strong> ${data.message}`;
+                    outputPlace.innerHTML += `<br><string>Error Response:</strong> ${data.message}`;
                 } else {
-                        outputPlace.innerHTML += `<br><strong>Response from game-api service</strong>: ${data.message}`;
+                    outputPlace.innerHTML += `<br><strong>Response from game-api service</strong>: ${data.message}`;
+                    playersCards = data.Data.PlayersCards;
+                    for (var i = 1; i <= payload.players; i++) {
+                        let playerName    = "player_" + i,
+                            playerElement = document.getElementsByClassName(playerName),
+                            cards = playerElement[0].querySelector(".cards");
+
+                            cards.innerHTML = `<span style="color:red"> ${playersCards[playerName]} </span>`;
+                    }
                 } }).catch((error) => {
                     outputPlace.innerHTML += "<br><br>Eror: " + error;
                   });

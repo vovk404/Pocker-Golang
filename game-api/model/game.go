@@ -18,13 +18,13 @@ func CreateGame(palyers int) Game {
 	game.Cards.createNewDeck()
 	game.Cards.passCardsToPlayers(palyers)
 	game.Cards.openPreflop()
-	game.crateRedisSession()
+	game.createRedisSession()
 
 	log.Println("cards set up finished")
 	return game
 }
 
-func (game *Game) crateRedisSession() {
+func (game *Game) createRedisSession() {
 	client := redis.NewClient(&redis.Options{
 		Addr: "redis:6379",
 		Password: "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81",
