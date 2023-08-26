@@ -49,7 +49,7 @@ func (app *AppConfig) errorJson(w http.ResponseWriter, err error, status ...int)
 	if len(status) > 0 {
 		statusCode = status[0]
 	}
-	var payload = jsonResponse{
+	var payload = JsonResponse{
 		Error: true,
 		Message: err.Error(),
 	}

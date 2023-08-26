@@ -3,7 +3,9 @@ package model
 import (
 	"log"
 	"encoding/json"
-	"github.com/go-redis/redis"
+	"context"
+	"net/http"
+	"github.com/go-session/session/v3"
 )
 
 type Game struct {
@@ -18,28 +20,47 @@ func CreateGame(palyers int) Game {
 	game.Cards.createNewDeck()
 	game.Cards.passCardsToPlayers(palyers)
 	game.Cards.openPreflop()
-	game.createRedisSession()
 
 	log.Println("cards set up finished")
 	return game
 }
 
-func (game *Game) createRedisSession() {
-	client := redis.NewClient(&redis.Options{
-		Addr: "redis:6379",
-		Password: "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81",
-		DB: 0,
-	})
-	pong, err := client.Ping().Result()
-	log.Println(pong, err)
+// func GetCurrentGame(w http.ResponseWriter, r *http.Request) (Game, error) {
+// 	sessionStore, err := session.Start(context.Background(), w, r)
+// 	game := Game {
+// 		Cards: Cards{},
+// 	}
+// 	if err != nil {
+// 		return game, err
+// 	}
+// 	currentGame, ok := sessionStore.Get("CurrentGame")
+// 	if ok {
+// 		err = json.Unmarshal(currentGame, game)
+// 		if err != nil {
+// 		   return game, err
+// 	    }
+//     }
+
+// 	return game, nil
+// }
+
+func (game *Game) CreateRedisSession(w http.ResponseWriter, r *http.Request) {
+	sessionStore, err := session.Start(context.Background(), w, r)
+	if err != nil {
+		log.Println("Error during session start")
+		return 
+	}
 
 	json, err := json.Marshal(game)
     if err != nil {
-        log.Println("Error during marshaling game object", err)
+		log.Println("Error during marshaling game")
+        return 
     }
 
-	err = client.Set("CurrentGame", json, 0).Err()
+	sessionStore.Set("CurrentGame", json)
+	err = sessionStore.Save()
 	if err != nil {
-		log.Println("Error during saving the game to the redis cache: ", err)
+		log.Println("Error during saving game into the session")
+		return 
 	}
 }
