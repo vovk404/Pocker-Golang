@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"log"
+	"github.com/go-session/session/v3"
+	"github.com/go-session/redis/v3"
 )
 
 const webPort = "80"
@@ -14,6 +16,13 @@ type AppConfig struct {
 
 func main() {
 	log.Println("Starting game-api service")
+	session.InitManager(
+		session.SetStore(redis.NewRedisStore(&redis.Options{
+			Addr: "redis:6379",
+			Password: "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81",
+			DB: 0,
+		})),
+	)
 
 	//TODO connect to DB
 	// conn := connectToDB()
