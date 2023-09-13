@@ -23,7 +23,6 @@ func main() {
 			DB: 0,
 		})),
 	)
-	log.Println("Session init")
 
 	//TODO connect to DB
 	// conn := connectToDB()

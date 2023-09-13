@@ -9,10 +9,16 @@ import (
 type Cards struct {
 	CurrentDeck []string
 	PlayersCards map[string][]string
-	Preflop []string
+	Flop []string
 }
 
-func (cards *Cards) createNewDeck() {
+type CardsJson struct {
+	CurrentDeck []string `json:"CurrentDeck"`
+	PlayersCards map[string][]string `json:"PlayersCards"`
+	Flop []string `json:"Flop"`
+}
+
+func (cards *Cards) CreateNewDeck() {
 	deck := []string{}
 	for i := 2; i <= 10; i++ {
 		element := strconv.FormatInt(int64(i), 10)
@@ -32,11 +38,11 @@ func (cards *Cards) createNewDeck() {
 		deck = append(deck, clubs, diamonds, hearts, spades);
 	}
 
-	deck = cards.shuffleDeck(deck)
+	deck = cards.ShuffleDeck(deck)
 	cards.CurrentDeck = deck
 }
 
-func (cards *Cards) shuffleDeck(deck []string) []string {
+func (cards *Cards) ShuffleDeck(deck []string) []string {
 	rand.Shuffle(len(deck), func(i, j int) {
         deck[i], deck[j] = deck[j], deck[i]
     })
@@ -44,23 +50,23 @@ func (cards *Cards) shuffleDeck(deck []string) []string {
 	return deck
 }
 
-func (cards *Cards) passCardsToPlayers(players int) {
+func (cards *Cards) PassCardsToPlayers(players int) {
 	playersCards := map[string][]string{}
 	for i := 1; i <= players; i++ {
 		playersCards["player_" + fmt.Sprint(i)] = []string{
-			cards.getOneCardFromDeck(),
-			cards.getOneCardFromDeck(),
+			cards.GetOneCardFromDeck(),
+			cards.GetOneCardFromDeck(),
 		}
 	}
 	cards.PlayersCards = playersCards
 }
 
-func (cards *Cards) openPreflop() {
-	cards.Preflop = cards.CurrentDeck[:3]
+func (cards *Cards) OpenPreflop() {
+	cards.Flop = cards.CurrentDeck[:3]
 	cards.CurrentDeck = cards.CurrentDeck[3:]
 }
 
-func (cards *Cards) getOneCardFromDeck() string {
+func (cards *Cards) GetOneCardFromDeck() string {
 	card := cards.CurrentDeck[0]
 	cards.CurrentDeck = cards.CurrentDeck[1:]
 

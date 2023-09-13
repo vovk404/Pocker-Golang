@@ -12,10 +12,13 @@
                </div>
             {{end}}
         </div>
+        <div class="flop-container">
+            <div class="flop-cards"></div>
+        </div>
         <div class="buttons">
-            <button id="startGame" class="btn btn-outline-secondary" href="javascript:void(0);">Start Game</button>
-            <button class="pass-cards-to-players">Pass Cards to Players</button>
-            <button class="open-pre-flop">Open preflop</button>
+            <button id="start-game" class="btn btn-outline-secondary" href="javascript:void(0);">Start Game</button>
+            <button id="pass-cards-to-players" class="btn btn-outline-secondary">Pass Cards to Players</button>
+            <button id="open-pre-flop" class="btn btn btn-outline-secondary">Open preflop</button>
         </div>
         <div id="payload" class="mt-5" style="outline: 1px solid silver; padding: 2em;">
             <span class="text-muted">Payload shows here...</span>
@@ -28,11 +31,14 @@
 
 {{define "js"}}
     <script>
-        let startGameBtn = document.getElementById("startGame"),
-            payloadPlace = document.getElementById("payload"),
-            playersCards = null,
-            players      = document.getElementsByClassName("players-table"),
-            outputPlace  = document.getElementById("output");
+        let startGameBtn   = document.getElementById("start-game"),
+            openPreFlopBtn = document.getElementById("open-pre-flop"),
+            playersCards   = null,
+            flop           = null,
+            players        = document.getElementsByClassName("players-table"),
+            payloadPlace   = document.getElementById("payload"),
+            outputPlace    = document.getElementById("output"),
+            flopPlace      = document.getElementsByClassName("flop-cards");
 
         startGameBtn.addEventListener("click", function() {
             const payload = {
@@ -45,6 +51,7 @@
             const body = {
                 method: "POST",
                 body: JSON.stringify(payload),
+                credential: 'include',
                 headers: headers,
              };
               fetch("http:\/\/localhost:8080/start-game", body)
@@ -70,6 +77,29 @@
                   });
          });
 
+         openPreFlopBtn.addEventListener("click", function() {
+            const headers = new Headers();
+            headers.append("Content-Type", "application/json");
+            
+            const body = {
+                method: "GET",
+                headers: headers,
+                credential: 'include'
+             };
+              fetch("http:\/\/localhost:8080/open-preflop", body)
+              .then((response) => response.json())
+              .then((data) => {
+                console.log(data);
+                if (data.error) {
+                    outputPlace.innerHTML += `<br><string>Error Response:</strong> ${data.message}`;
+                } else {
+                    outputPlace.innerHTML += `<br><strong>Response from game-api service</strong>: ${data.message}`;
+                    flop = data.Data.Flop
+                    flopPlace.innerHTML = `<span style="color:red"> ${flop} </span>`
+                } }).catch((error) => {
+                    outputPlace.innerHTML += "<br><br>Eror: " + error;
+                  });
+         });
         
     </script>
 {{end}}

@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"front-end/model/authentication"
 )
 
 func main() {
@@ -20,7 +21,7 @@ func main() {
 
 func handleRoutes() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		render(w, "start.game.gohtml", map[string]interface{}{})
+		render(w, "login.gohtml", map[string]interface{}{})
 	})
 	http.HandleFunc("/new_game", func(w http.ResponseWriter, r *http.Request) {
 		players, err := strconv.ParseInt(r.PostFormValue("players"), 10, 64)
@@ -34,6 +35,24 @@ func handleRoutes() {
 		}
 		data := map[string]interface{}{"players": playersArray}
 		render(w, "game/new_game.gohtml", data)
+	})
+	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		var loginRequest authentication.LoginRequest
+
+		if err := r.ParseForm(); err != nil {
+			http.Error(w, "Could not parse form.", http.StatusBadRequest)
+			return
+		}
+		loginRequest.Email = r.PostForm.Get("email")
+		loginRequest.Password = r.PostForm.Get("password")
+
+		err := authentication.Login(loginRequest)
+		if err != nil {
+			log.Println("Error during login: ", err.Error())
+			render(w, "login.gohtml", map[string]interface{}{})
+			return
+		}
+		render(w, "start.game.gohtml", map[string]interface{}{})
 	})
 }
 

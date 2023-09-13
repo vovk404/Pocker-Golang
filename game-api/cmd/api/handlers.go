@@ -27,37 +27,37 @@ type CardsResponse struct {
 func (app *AppConfig) NewGame(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
     var playersRequest NewGameJsonRequest
-    error := decoder.Decode(&playersRequest)
-    if error != nil {
-        fmt.Println("Error occured while decoding the data: ", error)
+    if err := decoder.Decode(&playersRequest);  err != nil {
+		log.Println("Error occured while decoding the data in authentication service: ")
         return
-    }
+	}
 
 	game := model.CreateGame(playersRequest.Players)
-	game.CreateRedisSession(w, r)
+
 	payload := JsonResponse {
 		Error:   false,
 		Message: fmt.Sprintf("Success game start"),
 		Data:    CardsResponse{},
 	}
-	payload.Data.CurrentDeck  = game.Cards.CurrentDeck
 	payload.Data.PlayersCards = game.Cards.PlayersCards
-	payload.Data.Flop         = game.Cards.Preflop
 	log.Println("game created")
 	app.writeJson(w, http.StatusOK, payload)
 }
 
-// func (app *AppConfig) OpenPreFlop(w http.ResponseWriter, r *http.Request) {
-// 	game := model
-// 	game.CreateRedisSession(w, r)
-// 	payload := JsonResponse {
-// 		Error:   false,
-// 		Message: fmt.Sprintf("Preflop successfuly opened"),
-// 		Data:    CardsResponse{},
-// 	}
-// 	payload.Data.CurrentDeck  = game.Cards.CurrentDeck
-// 	payload.Data.PlayersCards = game.Cards.PlayersCards
-// 	payload.Data.Flop         = game.Cards.Preflop
-// 	log.Println("game created")
-// 	app.writeJson(w, http.StatusOK, payload)
-// }
+func (app *AppConfig) OpenPreFlop(w http.ResponseWriter, r *http.Request) {
+	
+	payload := JsonResponse {
+		Error:   false,
+		Message: fmt.Sprintf("Preflop successfuly opened"),
+		Data:    CardsResponse{},
+	}
+	
+	game, err := model.GetCurrentGame(w, r)
+	if err != nil {
+		log.Panicln("Can`t get current game")
+	}
+	game.Cards.OpenPreflop()
+
+	payload.Data.Flop = game.Cards.Flop
+	app.writeJson(w, http.StatusOK, payload)
+}

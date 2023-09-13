@@ -17,50 +17,45 @@ func CreateGame(palyers int) Game {
 	game := Game {
 		Cards: Cards{},
 	}
-	game.Cards.createNewDeck()
-	game.Cards.passCardsToPlayers(palyers)
-	game.Cards.openPreflop()
+	game.Cards.CreateNewDeck()
+	game.Cards.PassCardsToPlayers(palyers)
 
 	log.Println("cards set up finished")
 	return game
 }
 
-// func GetCurrentGame(w http.ResponseWriter, r *http.Request) (Game, error) {
-// 	sessionStore, err := session.Start(context.Background(), w, r)
-// 	game := Game {
-// 		Cards: Cards{},
-// 	}
-// 	if err != nil {
-// 		return game, err
-// 	}
-// 	currentGame, ok := sessionStore.Get("CurrentGame")
-// 	if ok {
-// 		err = json.Unmarshal(currentGame, game)
-// 		if err != nil {
-// 		   return game, err
-// 	    }
-//     }
+func GetCurrentGame(w http.ResponseWriter, r *http.Request) (Game, error) {
 
-// 	return game, nil
-// }
+	game := Game {
+		Cards: Cards{},
+	}
 
-func (game *Game) CreateRedisSession(w http.ResponseWriter, r *http.Request) {
+
+	return game, nil
+}
+
+func (game *Game) SaveGameInotRedisSession(w http.ResponseWriter, r *http.Request) string {
 	sessionStore, err := session.Start(context.Background(), w, r)
+	sessionId := sessionStore.SessionID()
+	log.Println("My session id in save: ", sessionId)
+
 	if err != nil {
 		log.Println("Error during session start")
-		return 
+		return sessionId
 	}
 
 	json, err := json.Marshal(game)
     if err != nil {
 		log.Println("Error during marshaling game")
-        return 
+        return sessionId
     }
 
 	sessionStore.Set("CurrentGame", json)
 	err = sessionStore.Save()
 	if err != nil {
 		log.Println("Error during saving game into the session")
-		return 
+		return sessionId
 	}
+
+	return sessionId
 }
