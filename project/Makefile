@@ -1,6 +1,7 @@
 FRONT_END_BINARY=frontApp
 GAME_API_BINARY=gameApiApp
 AUTH_API_BINARY=authApp
+SESSION_REDIS_SERVICE_BINARY=sessionRedisServiceApp
 
 ## up: starts all containers in the background without forcing build
 up:
@@ -9,7 +10,7 @@ up:
 	@echo "Docker images started!"
 
 ## up_build: stops docker-compose (if running), builds all projects and starts docker compose
-up_build: build_game_api build_auth_api
+up_build: build_game_api build_auth_api build_session_redis_service_api
 	@echo "Stopping docker images (if running...)"
 	docker-compose down
 	@echo "Building (when required) and starting docker images..."
@@ -32,6 +33,12 @@ build_game_api:
 build_auth_api:
 	@echo "Building auth-api binary..."
 	cd ../authentication-service && env GOOS=linux CGO_ENABLED=0 go build -o ${AUTH_API_BINARY} ./cmd/api
+	@echo "Done!"
+
+## build_session_redis_service_api: builds the session_redis_service_api as a linux executable
+build_session_redis_service_api:
+	@echo "Building session_redis_service_api binary..."
+	cd ../session-redis-service && env GOOS=linux CGO_ENABLED=0 go build -o ${SESSION_REDIS_SERVICE_BINARY} ./cmd/api
 	@echo "Done!"
 
 ## build_front: builds the frone end binary

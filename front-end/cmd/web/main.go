@@ -24,6 +24,13 @@ func handleRoutes() {
 		render(w, "login.gohtml", map[string]interface{}{})
 	})
 	http.HandleFunc("/new_game", func(w http.ResponseWriter, r *http.Request) {
+		err := authentication.CheckRedisSession()
+		if err != nil {
+			//TODO add cookies messages
+			log.Println("Redis session wasn`t found: ", err.Error())
+			render(w, "login.gohtml", map[string]interface{}{})
+			return
+		}
 		players, err := strconv.ParseInt(r.PostFormValue("players"), 10, 64)
 		if err != nil {
 			//log.Panic("Players wasn`t passed")
@@ -35,6 +42,7 @@ func handleRoutes() {
 		}
 		data := map[string]interface{}{"players": playersArray}
 		render(w, "game/new_game.gohtml", data)
+		return
 	})
 	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		var loginRequest authentication.LoginRequest
@@ -46,13 +54,15 @@ func handleRoutes() {
 		loginRequest.Email = r.PostForm.Get("email")
 		loginRequest.Password = r.PostForm.Get("password")
 
-		err := authentication.Login(loginRequest)
+		err, _ := authentication.Login(loginRequest)
 		if err != nil {
 			log.Println("Error during login: ", err.Error())
 			render(w, "login.gohtml", map[string]interface{}{})
 			return
 		}
+		
 		render(w, "start.game.gohtml", map[string]interface{}{})
+		return
 	})
 }
 
