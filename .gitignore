@@ -2,3 +2,6 @@
 front-end/frontApp
 pocker.code-workspace
 project/db-data
+game-api/gameApiApp
+authentication-service/authApp
+session-redis-service/sessionRedisServiceApp
