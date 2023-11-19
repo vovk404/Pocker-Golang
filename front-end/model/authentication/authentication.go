@@ -16,6 +16,11 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
+type RedisLoginRequest struct {
+	Id int `json:"id"`
+	Email string `json:"email"`
+}
+
 type User struct {
 	ID        int       `json:"id"`
 	Email     string    `json:"email"`
@@ -69,7 +74,38 @@ func Login(entry LoginRequest) (error, User) {
 	return nil, jsonFromService.User
 }
 
-func CheckRedisSession() error {
+func CreateRedisSession(entry RedisLoginRequest) (error, http.Cookie) {
+	jsonData, _ := json.MarshalIndent(entry, "", "\t")
+	var sessionCookie http.Cookie
+	request, err := http.NewRequest("POST", "http://localhost:4111/login", bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Println("Could not create customer session request")
+		return err, sessionCookie
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		log.Println("Response erro from session redis service: ", err.Error())
+		return err, sessionCookie
+	}
+	defer response.Body.Close()
+
+	// make sure we get back the correct status code
+	if response.StatusCode != http.StatusOK {
+		log.Println("Response erro from session redis service, status is not OK")
+		return errors.New("Error during customer session creation"), sessionCookie
+	}
+	for _, cookie := range response.Cookies() {
+		if cookie.Name == "mysession" {
+			sessionCookie = *cookie
+		}
+	}
+
+	return nil, sessionCookie
+}
+
+func CheckRedisSession(r *http.Request) error {
 	jsonData, _ := json.MarshalIndent("", "", "\t")
 	request, err := http.NewRequest("GET", "http://localhost:4111/auth/test", bytes.NewBuffer(jsonData))
 	if err != nil {
@@ -77,6 +113,9 @@ func CheckRedisSession() error {
 		return err
 	}
 
+	for _, c := range r.Cookies() {
+		request.AddCookie(c)
+	}
 	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {

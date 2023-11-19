@@ -21,14 +21,15 @@ func main() {
 
 func handleRoutes() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		render(w, "login.gohtml", map[string]interface{}{})
+		render(w, "login_page.gohtml", map[string]interface{}{})
 	})
+	
 	http.HandleFunc("/new_game", func(w http.ResponseWriter, r *http.Request) {
-		err := authentication.CheckRedisSession()
+		err := authentication.CheckRedisSession(r)
 		if err != nil {
 			//TODO add cookies messages
 			log.Println("Redis session wasn`t found: ", err.Error())
-			render(w, "login.gohtml", map[string]interface{}{})
+			render(w, "login_page.gohtml", map[string]interface{}{})
 			return
 		}
 		players, err := strconv.ParseInt(r.PostFormValue("players"), 10, 64)
@@ -44,6 +45,7 @@ func handleRoutes() {
 		render(w, "game/new_game.gohtml", data)
 		return
 	})
+
 	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		var loginRequest authentication.LoginRequest
 
@@ -54,12 +56,23 @@ func handleRoutes() {
 		loginRequest.Email = r.PostForm.Get("email")
 		loginRequest.Password = r.PostForm.Get("password")
 
-		err, _ := authentication.Login(loginRequest)
+		err, user := authentication.Login(loginRequest)
 		if err != nil {
 			log.Println("Error during login: ", err.Error())
-			render(w, "login.gohtml", map[string]interface{}{})
+			render(w, "login_page.gohtml", map[string]interface{}{})
 			return
 		}
+		//add redis session
+		var redisRequest authentication.RedisLoginRequest
+	    redisRequest.Id    = user.ID
+	    redisRequest.Email = user.Email
+	    err, cookie := authentication.CreateRedisSession(redisRequest)
+	    if err != nil || cookie.Name == "" {
+			log.Println("Error during session creation")
+			render(w, "login_page.gohtml", map[string]interface{}{})
+			return
+    	}
+		http.SetCookie(w, &cookie)
 		
 		render(w, "start.game.gohtml", map[string]interface{}{})
 		return
