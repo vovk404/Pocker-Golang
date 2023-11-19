@@ -105,7 +105,7 @@ func CreateRedisSession(entry RedisLoginRequest) (error, http.Cookie) {
 	return nil, sessionCookie
 }
 
-func CheckRedisSession() error {
+func CheckRedisSession(r *http.Request) error {
 	jsonData, _ := json.MarshalIndent("", "", "\t")
 	request, err := http.NewRequest("GET", "http://localhost:4111/auth/test", bytes.NewBuffer(jsonData))
 	if err != nil {
@@ -113,6 +113,9 @@ func CheckRedisSession() error {
 		return err
 	}
 
+	for _, c := range r.Cookies() {
+		request.AddCookie(c)
+	}
 	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {

@@ -25,7 +25,7 @@ func handleRoutes() {
 	})
 	
 	http.HandleFunc("/new_game", func(w http.ResponseWriter, r *http.Request) {
-		err := authentication.CheckRedisSession()
+		err := authentication.CheckRedisSession(r)
 		if err != nil {
 			//TODO add cookies messages
 			log.Println("Redis session wasn`t found: ", err.Error())
