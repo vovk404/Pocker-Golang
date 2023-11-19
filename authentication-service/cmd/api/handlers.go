@@ -2,7 +2,6 @@ package main
 
 import (
 	"authentication/data"
-	"authentication/services"
 	"errors"
 	"fmt"
 	"log"
@@ -10,9 +9,9 @@ import (
 )
 
 type jsonResponse struct {
-	Error   bool      `json:"error"`
-	Message string    `json:"message"`
-	User    data.User `json:"data,omitempty"`
+	Error        bool      `json:"error"`
+	Message      string    `json:"message"`
+	User         data.User `json:"user,omitempty"`
 }
 
 func (app *Config) Authenticate(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +19,6 @@ func (app *Config) Authenticate(w http.ResponseWriter, r *http.Request) {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
-	var redisRequest services.RedisLoginRequest
 
 	err := app.readJSON(w, r, &requestPaylod)
 	if err != nil {
@@ -48,14 +46,6 @@ func (app *Config) Authenticate(w http.ResponseWriter, r *http.Request) {
 	valid, err := app.Repo.PasswordMatches(requestPaylod.Password, *user)
 	if err != nil || !valid {
 		app.errorJson(w, errors.New("invalid credentials"), http.StatusUnauthorized)
-		return
-	}
-	//add redis session
-	redisRequest.Id    = user.ID
-	redisRequest.Email = user.Email
-	err = services.CreateRedisSession(redisRequest)
-	if err != nil {
-		app.errorJson(w, errors.New("Error during redis session creation"), http.StatusUnauthorized)
 		return
 	}
 
