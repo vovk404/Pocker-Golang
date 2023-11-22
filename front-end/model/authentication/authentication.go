@@ -99,6 +99,7 @@ func CreateRedisSession(entry RedisLoginRequest) (error, http.Cookie) {
 	for _, cookie := range response.Cookies() {
 		if cookie.Name == "mysession" {
 			sessionCookie = *cookie
+			break
 		}
 	}
 
