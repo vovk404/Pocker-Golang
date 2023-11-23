@@ -21,7 +21,12 @@ func main() {
 
 func handleRoutes() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		render(w, "login_page.gohtml", map[string]interface{}{})
+		err := authentication.CheckRedisSession(r)
+		if err != nil {
+			render(w, "login_page.gohtml", map[string]interface{}{})
+			return
+		}
+		render(w, "game/new_game.gohtml", map[string]interface{}{})
 	})
 	
 	http.HandleFunc("/new_game", func(w http.ResponseWriter, r *http.Request) {
@@ -77,6 +82,17 @@ func handleRoutes() {
 		render(w, "start.game.gohtml", map[string]interface{}{})
 		return
 	})
+
+	http.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
+		err := authentication.Logout(r)
+		if err != nil {
+			log.Println("Error during logout: ", err.Error())
+			return
+		}
+		
+		render(w, "login_page.gohtml", map[string]interface{}{})
+		return
+	})
 }
 
 func render(w http.ResponseWriter, t string, data map[string]interface{}) {
@@ -86,6 +102,7 @@ func render(w http.ResponseWriter, t string, data map[string]interface{}) {
 		"./cmd/web/templates/base.layout.gohtml",
 		"./cmd/web/templates/header.partial.gohtml",
 		"./cmd/web/templates/footer.partial.gohtml",
+		"./cmd/web/templates/my-account.partial.gohtml",
 	}
 
 	tmpl, err := template.ParseFiles(partials...)

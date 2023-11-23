@@ -74,6 +74,34 @@ func Login(entry LoginRequest) (error, User) {
 	return nil, jsonFromService.User
 }
 
+func Logout(r *http.Request) error {
+	jsonData, _ := json.MarshalIndent("", "", "\t")
+	request, err := http.NewRequest("GET", "http://localhost:4111/logout", bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Println("Could not create logout request:", err.Error())
+		return err
+	}
+	client := &http.Client{}
+	for _, cookie := range r.Cookies() {
+		if cookie.Name == "mysession" {
+			request.AddCookie(cookie)
+		}
+	}
+	response, err := client.Do(request)
+	if err != nil {
+		log.Println("Error Reponse from redise during logout: ", err.Error())
+		return err
+	}
+	defer response.Body.Close()
+
+	// make sure we get back the correct status code
+	if response.StatusCode != http.StatusOK {
+		log.Println("Response status from logout redis is not ok")
+		return errors.New("Response status from logout redis is not ok")
+	}
+	return nil
+}
+
 func CreateRedisSession(entry RedisLoginRequest) (error, http.Cookie) {
 	jsonData, _ := json.MarshalIndent(entry, "", "\t")
 	var sessionCookie http.Cookie
