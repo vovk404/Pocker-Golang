@@ -27,7 +27,7 @@ func (auth *Authentication) Login(c *gin.Context) {
 		})
 		return
 	}
-
+	
 	session.Set("id", createSessionRequest.Id)
 	session.Set("email", createSessionRequest.Email)
 	session.Save()
