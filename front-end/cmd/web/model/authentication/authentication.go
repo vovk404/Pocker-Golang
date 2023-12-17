@@ -68,7 +68,7 @@ func Login(entry LoginRequest) (error, User) {
 		return err, jsonFromService.User
 	}
 	if jsonFromService.Error == true {
-		return errors.New(fmt.Sprintf("Wrong login or password, code2: %s", strconv.Itoa(response.StatusCode))), jsonFromService.User
+		return errors.New(fmt.Sprintf("Could not parse response from db: %s", strconv.Itoa(response.StatusCode))), jsonFromService.User
 	}
 
 	return nil, jsonFromService.User
