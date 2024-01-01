@@ -12,9 +12,12 @@
                </div>
             {{end}}
         </div>
+
         <div class="flop-container">
-            <div class="flop-cards"></div>
+            <p>Flop</p>
+            <div id="flop-cards"></div>
         </div>
+        
         <div class="buttons">
             <button id="start-game" class="btn btn-outline-secondary" href="javascript:void(0);">Start Game</button>
             <button id="pass-cards-to-players" class="btn btn-outline-secondary">Pass Cards to Players</button>
@@ -38,7 +41,7 @@
             players        = document.getElementsByClassName("players-table"),
             payloadPlace   = document.getElementById("payload"),
             outputPlace    = document.getElementById("output"),
-            flopPlace      = document.getElementsByClassName("flop-cards");
+            flopPlace      = document.getElementById("flop-cards");
 
         startGameBtn.addEventListener("click", function() {
             const payload = {
@@ -94,8 +97,8 @@
                     outputPlace.innerHTML += `<br><string>Error Response:</strong> ${data.message}`;
                 } else {
                     outputPlace.innerHTML += `<br><strong>Response from game-api service</strong>: ${data.message}`;
-                    flop = data.Data.Flop
-                    flopPlace.innerHTML = `<span style="color:red"> ${flop} </span>`
+                    flop = data.Data.Flop;
+                    flopPlace.innerHTML = `<span style="color:red"> ${flop} </span>`;
                 } }).catch((error) => {
                     outputPlace.innerHTML += "<br><br>Eror: " + error;
                   });
