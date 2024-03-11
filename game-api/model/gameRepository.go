@@ -33,23 +33,31 @@ func InitClient(mongo *mongo.Client) *mongo.Client {
 	return client
 }
 
-func Insert(game *Game, userId int) error {
+func SaveGame(game *Game, userId int) error {
 	collection := client.Database(dbName).Collection(collection)
 	gameJson, err := json.MarshalIndent(game, "", "\t")
 	if err != nil {
 		return err
 	}
+	currentGameEntry, err := GetByUserId(userId)
+	if currentGameEntry != nil {
+		_, err := Update(currentGameEntry)
+		if err != nil {
+			log.Println("Error updating game:", err)
+		}
+		return err
+	}
 
-	_, error := collection.InsertOne(context.TODO(), GameEntry{
+	_, err = collection.InsertOne(context.TODO(), GameEntry{
 		UserId: userId,
 		Data: string(gameJson),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	})
 	
-	if error != nil {
-		log.Println("Error inserting into games:", error)
-		return error
+	if err != nil {
+		log.Println("Error inserting into games:", err)
+		return err
 	}
 
 	return nil
@@ -105,20 +113,18 @@ func GetOne(id string) (*GameEntry, error) {
 	return &entry, nil
 }
 
-func GetByUserId(id string) (*GameEntry, error) {
+func GetByUserId(userId int) (*GameEntry, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
 	collection := client.Database(dbName).Collection(collection)
-	docID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, err
-	}
+	
 	var entry GameEntry
-	err = collection.FindOne(ctx, bson.M{"user_id": docID}).Decode(&entry)
+	err := collection.FindOne(ctx, bson.M{"user_id": userId}).Decode(&entry)
 	if err != nil {
 		return nil, err
 	}
+
 	return &entry, nil
 }
 
@@ -135,7 +141,7 @@ func DropCollection() error {
 	return nil
 }
 
-func Update(entry GameEntry) (*mongo.UpdateResult, error) {
+func Update(entry *GameEntry) (*mongo.UpdateResult, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 

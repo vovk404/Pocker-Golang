@@ -18,10 +18,6 @@ type NewGameJsonRequest struct {
 	Players int `json:"players"`
 }
 
-type GetCurrentGameRequest struct {
-	UserId string `json:"userId"`
-}
-
 type CardsResponse struct {
 	CurrentDeck  []string
 	PlayersCards map[string][]string
@@ -61,18 +57,8 @@ func (app *AppConfig) OpenPreFlop(w http.ResponseWriter, r *http.Request) {
 		log.Panicln("Can`t get current game")
 	}
 	game.Cards.OpenPreflop()
-
+	model.SaveCurrentGame(*game)
+	
 	payload.Data.Flop = game.Cards.Flop
 	app.writeJson(w, http.StatusOK, payload)
-}
-
-func (app *AppConfig) GetCurrentUserGame(w http.ResponseWriter, r *http.Request) {
-	decoder := json.NewDecoder(r.Body)
-    var currentGameRequest GetCurrentGameRequest
-    if err := decoder.Decode(&currentGameRequest);  err != nil {
-		log.Println("Error occured while decoding the data in request: ")
-        return
-	}
-
-	// TODO
 }
